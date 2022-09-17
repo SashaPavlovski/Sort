@@ -1,0 +1,210 @@
+#include <stdio.h>
+#include <stdlib.h> 
+#include <string.h>
+#include <conio.h>
+#include <time.h>
+#include "Defining_types.h"
+
+#pragma warning(disable:4996)
+t_ItemNum* Head = NULL;
+t_ItemNum* Tail = NULL;
+void fun_log(char message[100]);
+void LogError(char message[100]);
+void LogEvent(char message[100]);
+void LogEventVal(char message[100], int Val);
+
+void Add(int num)
+{
+    LogEventVal("The number enters the function Add\n",num);
+	t_ItemNum* move = (t_ItemNum*)malloc(sizeof(t_ItemNum));
+	if (!move)
+	{
+		LogError("Unable to allocate memory\n");
+		exit(1);
+	}
+	move->next = NULL;
+	move->num = num;
+	LogEventVal("The number enters the document\n", num);
+	if (Head == NULL)
+	{
+		LogEvent("The first document is created\n");
+		Head = move;
+		Tail = move;
+		move->prev = NULL;
+	}
+	else
+	{
+		LogEvent("A new document is created\n");
+		Tail->next = move;
+		move->prev = Tail;
+		Tail = move;
+	}
+
+	LogEvent("The program Add is over\n\n");
+}
+   
+
+void PrintList()
+{
+	LogEvent("Print program started\n");
+	t_ItemNum* move = Head;
+	t_ItemNum* Old = Head;
+
+	while (move != NULL)
+	{
+		Old = move;
+		move = move->next;
+		printf("the number is %d\n", Old->num);
+		LogEvent("A document has been printed\n");
+
+	}
+	LogEvent("The printing process is finished and the program PrintList is closed\n\n");
+
+}
+
+
+
+void Replace(t_ItemNum* item)
+{
+	LogEvent("enters the Replace function\n");
+	t_ItemNum* change = item;
+
+	     if (change == NULL)
+	     {
+			LogEvent("No need to swap. No Items in list\n");
+           //There are no numbers
+		 }
+		 else if (change->next == NULL)
+	     {
+			LogEventVal("No need to swap. This is the only number\n", change->num);
+	     	//single
+	     }
+		 else if (change == Head && change->next == Tail)
+		 {
+			 LogEventVal("swap between two num. There are only two numbers\n", change->num);
+			 change->next = NULL;
+			 change->prev = Tail;
+			 Tail->prev = NULL;
+			 Tail->next = change;
+			 Tail=change;
+			 Head = change->prev;
+			 //only two numbers
+		 }
+	     else if (change == Head)
+	     {
+			LogEventVal("swap starts from the beginning. This is the first document\n", change->num);
+			change->next->prev = NULL;
+			change = change->next->next;
+			Head->next->next = Head;
+			Head->prev = Head->next;
+			Head->next = change;
+			change->prev = Head;
+			Head = Head->prev;
+			change = Head->next;
+	     	//Change from the beginning
+	     
+	     }
+	     else if (change->next == Tail)
+	     {
+			LogEventVal("swap between two num. The number is one before last\n", change->num);
+			change->next->prev = change->prev;
+			change->prev = Tail;
+			Tail->next = change;
+			change->next = NULL;
+			Tail->prev->next = change->prev;
+			Tail = Tail->next;
+
+	     	//change the tail
+	     }
+	     else
+	     {
+			LogEventVal("swap between two num. The change starts from the middle\n", change->num);
+			change->next->prev = change->prev;
+			change->prev = change->next;
+			change->next = change->next->next;
+			change->prev->next = change;
+			change->prev->prev->next = change->prev;
+			change->next->prev = change;
+
+	     	//Change from the middle
+	     }
+    
+ LogEvent("The replacement process is done and the program Replace is finished\n\n");
+}
+
+void Sorting_between_two()
+{
+	LogEvent("enters the Sorting_between_two function\n");
+
+		t_ItemNum* curr = Head;
+		if (!curr)
+		{
+			LogError("The list is empty\n");
+			// The list is empty
+			return;
+		}
+        
+		char change = 1;
+		while (change != 0)
+		{
+			LogEvent("The sorting process has started\n");
+
+			change = 0;
+			while (curr != NULL)
+			{
+				if (curr->next != NULL && curr->num > curr->next->num)
+				{
+					LogEventVal("the current number\n", curr->num);
+					LogEventVal("the next number\n", curr->next->num);
+					LogEventVal("The current number is bigger than the next number\n\n", curr->num);
+					Replace(curr);
+					change++;
+				}
+				curr = curr->next;
+			}
+
+			curr = Head;
+		}
+	  LogEvent("The sorting process has Ended\n\n");
+	  PrintList();
+
+  LogEvent("The selection process is done and the program Sorting_between_two is finished\n\n");
+}
+
+
+int main()
+{
+	time_t t;
+	time(&t);
+	struct tm* timeinfo;
+	timeinfo = localtime(&t);
+	char str_time[1000];
+	int time_hs = timeinfo->tm_hour;
+	int time_ms = timeinfo->tm_min;
+	int time_cs = timeinfo->tm_sec;
+
+	LogEvent("Start of log And run\n\n");
+	time_t i = time(NULL);
+	srand(i);
+	int num;
+	for (int i = 1; i <= 10000; i++)
+	{
+		num = rand();
+		Add(num);
+	}
+	Sorting_between_two();
+
+
+
+	time_t t_e;
+	time(&t_e);
+	struct tm* timeinfo_e;
+	timeinfo_e = localtime(&t_e);
+	int sum_he = timeinfo_e->tm_hour - time_hs;
+	int sum_me = timeinfo_e->tm_min - time_ms;
+	int sum_ce = timeinfo_e->tm_sec - time_cs;
+	sprintf(str_time, "The time that passed from the start of the process to its end is   %d  :  %d  :  %d\n", sum_he, sum_me, sum_ce);
+	LogEvent(str_time);
+	LogEvent("End of log And run\n\n\n\n\n");
+	return 0;
+}
